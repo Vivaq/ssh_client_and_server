@@ -1,0 +1,59 @@
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+        function save_text() {
+            window.name = document.getElementById('id_field').value + '\n';
+        }
+        function restore_text() {
+            var initial = '';
+            var authenticated = false;
+
+            if('{{ response }}' == 'positive'){
+                if ((window.name.match(/\n/g) || []).length == 2) alert('password correct');
+                authenticated = true;
+            }
+            else if('{{ response }}' == 'negative'){
+                alert('bad password, try again');
+                document.getElementById('id_field').innerHTML = '[enter ip] $ ';
+                return;
+            }
+            else if ((window.name.match(/\n/g) || []).length == 0){
+                initial = '[enter ip] $ '
+            }
+            else if ((window.name.match(/\n/g) || []).length == 1){
+                initial = '[enter password] $ ';
+            }
+            if(authenticated) {
+                initial = '{{ output }}'.replace(/=/g, '\n') + '\n[enter command] $ ';
+            }
+            document.getElementById('id_field').innerHTML = window.name + initial;
+        }
+
+        $(document).keypress(function(e){
+            if (e.which == 13){
+                save_text();
+                $("#save_post").click();
+            }
+        });
+    </script>
+    <style>
+        #save_post {
+            display: none;
+        }
+        textarea{
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            color: azure;
+        }
+    </style>
+</head>
+<body onload="restore_text()">
+    <form action="/" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <p align="center">
+                    <input id="save_post" type="submit" name="option" value="Command">
+                </p>
+    </form>
+</body>
